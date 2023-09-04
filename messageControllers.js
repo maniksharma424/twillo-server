@@ -13,7 +13,7 @@ export const sendMessage = asyncHandler(async (req, res) => {
     const response = await client.messages.create({
       from: "whatsapp:+14155238886",
       body: message,
-      statusCallback: "https://eojj1x33vxx2640.m.pipedream.net",
+      statusCallback: "https://twillo-server.onrender.com/updateStatus",
       to: `whatsapp:+91${phoneNumber}`,
     });
 
