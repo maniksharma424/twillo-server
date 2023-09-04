@@ -13,6 +13,18 @@ const messageSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    from: {
+      type: String,
+      required: true,
+    },
+    to: {
+      type: String,
+      required: true,
+    },
+    body: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,

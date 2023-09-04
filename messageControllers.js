@@ -22,6 +22,9 @@ export const sendMessage = asyncHandler(async (req, res) => {
       completed: true,
       sid: response.sid,
       status: response.status,
+      from: response.from,
+      to: response.to,
+      body: response.body,
     });
     newMessage.save();
     if (newMessage) {
@@ -37,13 +40,24 @@ export const sendMessage = asyncHandler(async (req, res) => {
 
 export const updateMessageStatus = asyncHandler(async (req, res) => {
   const { MessageSid, MessageStatus } = await req.body;
-  console.log(MessageSid);
-  console.log(MessageStatus);
+
   if (MessageSid && MessageStatus) {
     const message = await Message.findOne({ sid: MessageSid });
     message.status = await MessageStatus;
     const updatedMessage = await message.save();
-    console.log(updatedMessage);
+
     res.status(200);
+  }
+});
+
+export const getAllMessages = asyncHandler(async (req, res) => {
+  const allMessages = await Message.find({})
+  if(allMessages){
+    res.status(200).json({
+      messages:allMessages
+    })
+  }
+  else{
+    res.status(400).send("Smomething went wrong")
   }
 });
