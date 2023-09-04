@@ -36,15 +36,13 @@ export const sendMessage = asyncHandler(async (req, res) => {
 });
 
 export const updateMessageStatus = asyncHandler(async (req, res) => {
-  console.log("hi updation Started");
-  console.log(req.body);
   const { MessageSid, MessageStatus } = await req.body;
   console.log(MessageSid);
+  console.log(MessageStatus);
   if (MessageSid && MessageStatus) {
     const message = await Message.findOne({ sid: MessageSid });
-    console.log(message);
-    message.sid = MessageSid;
-    const updatedMessage = message.save();
+    message.status = await MessageStatus;
+    const updatedMessage = await message.save();
     console.log(updatedMessage);
     res.status(200);
   }
