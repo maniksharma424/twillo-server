@@ -4,7 +4,7 @@ import twilio from "twilio";
 import { configDotenv } from "dotenv";
 
 configDotenv();
-app.use(express.json());
+
 const client = new twilio(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
 
 export const sendMessage = asyncHandler(async (req, res) => {
