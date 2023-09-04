@@ -11,7 +11,7 @@ dotenv.config();
 const port = 9000;
 
 const app = express();
-app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 connectDB();
 app.use(express.json());
 app.use(cors());
