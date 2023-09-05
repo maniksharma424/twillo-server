@@ -75,7 +75,6 @@ export const updateMessageStatus = asyncHandler(async (req, res) => {
   const { MessageSid, MessageStatus } = await req.body;
 
   if (MessageSid && MessageStatus) {
-    console.log(MessageStatus);
     const message = await Message.findOne({ sid: MessageSid });
     message.status = await MessageStatus;
     const updatedMessage = await message.save();
