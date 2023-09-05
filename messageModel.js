@@ -17,6 +17,10 @@ const messageSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    videoUrl: {
+      type: String,
+      required: false,
+    },
     to: {
       type: String,
       required: true,
