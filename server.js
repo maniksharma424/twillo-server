@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 import cors from "cors";
 import connectDB from "./db.js";
-import { getAllMessages, sendMediaMessage, sendMessage, updateMessageStatus } from "./messageControllers.js";
+import { getAllMessages, sendMessage, updateMessageStatus } from "./messageControllers.js";
 
 dotenv.config();
 
@@ -18,7 +18,6 @@ app.use(cors());
 app.post("/sendmessage", sendMessage)
 app.post("/updateStatus",updateMessageStatus)
 app.get("/messages",getAllMessages)
-app.post("/sendMediaMessage",sendMediaMessage)
 
 const server = app.listen(port, () =>
   console.log(`server is running at port ${port}`)
