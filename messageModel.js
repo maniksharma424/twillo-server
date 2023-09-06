@@ -1,10 +1,6 @@
 import mongoose from "mongoose";
 const messageSchema = mongoose.Schema(
   {
-    completed: {
-      type: Boolean,
-      required: true,
-    },
     sid: {
       type: String,
       required: true,
@@ -14,6 +10,14 @@ const messageSchema = mongoose.Schema(
       required: true,
     },
     from: {
+      type: String,
+      required: true,
+    },
+    sender: {
+      type: String,
+      required: true,
+    },
+    receiver: {
       type: String,
       required: true,
     },

@@ -7,65 +7,112 @@ configDotenv();
 
 const client = new twilio(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
 
-//Send Text Message
+//Send Text Message POST
+
 export const sendMessage = asyncHandler(async (req, res) => {
-  const {phoneNumber,message,name,video_URL} = await req.body;
+  try {
+    const { sender, message, video_URL, recipients } = req.body;
 
-  if (phoneNumber.length === 10 && message && name) {
-    const response = await client.messages.create({
-      from: "whatsapp:+14155238886",
-      body: `Hi ${name} ${message}`,
-      statusCallback: "https://twillo-server.onrender.com/updateStatus",
-      to: `whatsapp:+91${phoneNumber}`,
-    });
-    const mediaResponse = await client.messages.create({
-      mediaUrl: [`${video_URL}`],
-      from: "whatsapp:+14155238886",
-      to: `whatsapp:+91${phoneNumber}`,
-      body:video_URL,
-    });
+    if (!recipients || !Array.isArray(recipients) || recipients.length <= 0) {
+      return res.status(400).send("Invalid request: No recipients found");
+    }
 
-    const newMessage = await Message.create({
-      completed: true,
-      sid: response.sid,
-      status: response.status,
-      from: response.from,
-      to: response.to,
-      body: response.body,
-      videoUrl:video_URL
-    });
-    newMessage.save();
-    if (newMessage) {
-      res.status(200).json({
-        completed: true,
-        info: response,
+    const promises = [];
+
+    for (const recipient of recipients) {
+      const response = await client.messages.create({
+        from: "whatsapp:+14155238886",
+        body: `Hi ${recipient?.name} ${message} -${sender}`,
+        statusCallback: "https://twillo-server.onrender.com/updateStatus",
+        to: `whatsapp:+91${recipient?.phoneNumber}`,
+      });
+
+      const mediaResponse = await client.messages.create({
+        mediaUrl: [`${video_URL}`],
+        from: "whatsapp:+14155238886",
+        to: `whatsapp:+91${recipient?.phoneNumber}`,
+        body: video_URL,
+      });
+
+
+      const newMessage = await Message.create({
+        sid: response.sid,
+        sender: sender,
+        receiver: recipient.name,
+        from: response.from,
+        to: response.to,
+        body: response.body,
+        videoUrl: video_URL,
+        status: response.status,
+      });
+      await newMessage.save();
+
+      promises.push({
+        recipient: recipient.name,
+        messageResponse: response,
+        videoResponse:mediaResponse
       });
     }
-  } else {
-    res.status(400).send("Invalid request check phoneNumber and message");
+
+    const results = await Promise.all(promises);
+
+    res.status(200).json({
+      info: results,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "An error occurred while sending messages.",
+    });
   }
 });
+
+//POST ("/updateStatus") update message status
 
 
 export const updateMessageStatus = asyncHandler(async (req, res) => {
-  const { MessageSid, MessageStatus } = await req.body;
+  try {
+    const { MessageSid, MessageStatus } = req.body;
 
-  if (MessageSid && MessageStatus) {
-    const message = await Message.findOne({ sid: MessageSid });
-    message.status = await MessageStatus;
-    const updatedMessage = await message.save();
+    if (MessageSid && MessageStatus) {
+      const message = await Message.findOne({ sid: MessageSid });
 
-    res.status(200);
+      if (!message) {
+        return res.status(404).json({ error: "Message not found" });
+      }
+
+      message.status = MessageStatus;
+      const updatedMessage = await message.save();
+
+      res.status(200).json({ message: "Message status updated successfully" });
+    } else {
+      res.status(400).json({
+        error: "Invalid request: MessageSid and MessageStatus are required",
+      });
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating message status" });
   }
 });
 
+//GET ("/messages") get all messages 
+
+
 export const getAllMessages = asyncHandler(async (req, res) => {
-  const allMessages = await Message.find({});
-  if (allMessages) {
-    res.status(200).json({
-      messages: allMessages,
-    });
-  } else {
-    res.status(400).send("Smomething went wrong");
+  try {
+    const allMessages = await Message.find({});
+    if (allMessages) {
+      res.status(200).json({
+        messages: allMessages,
+      });
+    } else {
+      res.status(400).send("Smomething went wrong");
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating message status" });
   }
 });
