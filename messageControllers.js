@@ -11,7 +11,7 @@ const client = new twilio(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
 
 export const sendMessage = asyncHandler(async (req, res) => {
   try {
-    const { sender, message, video_URL, recipients } = req.body;
+    const { sender,senderNumber, message, video_URL, recipients } = req.body;
 
     if (!recipients || !Array.isArray(recipients) || recipients.length <= 0) {
       return res.status(400).send("Invalid request: No recipients found");
@@ -44,6 +44,7 @@ export const sendMessage = asyncHandler(async (req, res) => {
         body: response.body,
         videoUrl: video_URL,
         status: response.status,
+        senderNumber:senderNumber
       });
       await newMessage.save();
 

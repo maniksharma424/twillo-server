@@ -33,6 +33,10 @@ const messageSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    senderNumber:{
+      type:String,
+      required:true
+    }
   },
   {
     timestamps: true,
