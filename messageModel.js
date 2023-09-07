@@ -25,7 +25,7 @@ const messageSchema = mongoose.Schema(
       type: String,
       required: false,
     },
-    to: {
+    receiverNumber: {
       type: String,
       required: true,
     },

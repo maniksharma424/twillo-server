@@ -11,7 +11,7 @@ const client = new twilio(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
 
 export const sendMessage = asyncHandler(async (req, res) => {
   try {
-    const { sender,senderNumber, message, video_URL, recipients } = req.body;
+    const { sender, senderNumber, message, video_URL, recipients } = req.body;
 
     if (!recipients || !Array.isArray(recipients) || recipients.length <= 0) {
       return res.status(400).send("Invalid request: No recipients found");
@@ -34,32 +34,37 @@ export const sendMessage = asyncHandler(async (req, res) => {
         body: video_URL,
       });
 
-
       const newMessage = await Message.create({
         sid: response.sid,
         sender: sender,
         receiver: recipient.name,
         from: response.from,
-        to: response.to,
+        receiverNumber: response.to,
         body: response.body,
         videoUrl: video_URL,
         status: response.status,
-        senderNumber:senderNumber
+        senderNumber: senderNumber,
       });
       await newMessage.save();
 
       promises.push({
         recipient: recipient.name,
         messageResponse: response,
-        videoResponse:mediaResponse
+        videoResponse: mediaResponse,
       });
     }
 
-    const results = await Promise.all(promises);
-
-    res.status(200).json({
-      info: results,
-    });
+    const results = await Promise.all(promises)
+      .then(() => {
+        res.status(200).json({
+          info: results,
+        });
+      })
+      .catch(() => {
+        res.status(500).json({
+          error: "An error occurred while sending messages.",
+        });
+      });
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -69,7 +74,6 @@ export const sendMessage = asyncHandler(async (req, res) => {
 });
 
 //POST ("/updateStatus") update message status
-
 
 export const updateMessageStatus = asyncHandler(async (req, res) => {
   try {
@@ -98,8 +102,7 @@ export const updateMessageStatus = asyncHandler(async (req, res) => {
   }
 });
 
-//GET ("/messages") get all messages 
-
+//GET ("/messages") get all messages
 
 export const getAllMessages = asyncHandler(async (req, res) => {
   try {
